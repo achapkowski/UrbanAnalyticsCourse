@@ -1,6 +1,7 @@
 channel:
   - r
   - arcgis
+  - conda-forge
 dependencies:
   - r-base
   - r-essentials
