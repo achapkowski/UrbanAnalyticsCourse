@@ -1,0 +1,6 @@
+channel:
+  - r
+  - arcgis
+dependencies:
+  - r-essentials
+  - r-arcgis-essentials
