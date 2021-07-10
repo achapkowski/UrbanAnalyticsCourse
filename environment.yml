@@ -4,4 +4,4 @@ channel:
 dependencies:
   - r-base
   - r-essentials
-  - r-arcgis-essentials
+  - r-tidyverse
