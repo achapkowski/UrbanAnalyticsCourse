@@ -6,3 +6,8 @@ dependencies:
   - r-base
   - r-essentials
   - r-tidyverse
+  - r-tmap
+  - r-devtools
+  - r-rgeos
+  - r-rgdal
+  - r-ggplot2
