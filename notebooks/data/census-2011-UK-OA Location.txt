@@ -1,0 +1,2 @@
+Download the data from here:
+https://github.com/alexsingleton/urban_analytics/raw/master/10_Data_Reduction_Geodemographics/data/census_2011_UK_OA.RData
