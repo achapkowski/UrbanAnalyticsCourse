@@ -1,0 +1,146 @@
+name: Notebook CI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  notebooks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      REPO_ROOT: ${{ github.workspace }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3.3.0
+        with:
+          auto-activate-base: false
+          miniforge-version: latest
+          channels: conda-forge,r,arcgis
+          channel-priority: flexible
+
+      - name: Create notebook CI environment
+        run: conda env create -n notebook-ci -f "$REPO_ROOT/environment.yml"
+
+      - name: Install notebook execution dependencies
+        run: >
+          conda install -n notebook-ci -y -c conda-forge
+          python=3.11 nbclient nbformat jupyter ipykernel
+          pandas numpy matplotlib geopandas shapely regex
+          r-openxlsx r-classint r-rcolorbrewer r-maptools r-doby
+          r-leaflet r-sqldf r-rcurl r-rjsonio r-igraph
+          r-randomcolorr r-reshape2 r-lubridate r-spdep r-gridextra
+
+      - name: Register notebook kernels
+        run: |
+          conda run -n notebook-ci python -m ipykernel install --user --name python3 --display-name "Python 3"
+          conda run -n notebook-ci Rscript -e 'IRkernel::installspec(name = "ir", displayname = "R", user = TRUE)'
+
+      - name: Execute notebooks
+        id: execute
+        run: |
+          set +e
+          rm -rf "$REPO_ROOT/.notebook-ci"
+          conda run -n notebook-ci python "$REPO_ROOT/scripts/run_notebooks.py" \
+            --repo-root "$REPO_ROOT" \
+            --output-dir "$REPO_ROOT/.notebook-ci" \
+            --timeout 900
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish notebook summary
+        if: always()
+        run: test -f "$REPO_ROOT/.notebook-ci/summary.md" && cat "$REPO_ROOT/.notebook-ci/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload notebook CI artifacts
+        if: always()
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: notebook-ci-results
+          path: ${{ env.REPO_ROOT }}/.notebook-ci
+          if-no-files-found: warn
+
+      - name: Open or update weekly failure issue
+        if: github.event_name == 'schedule' && steps.execute.outputs.exit_code != '0'
+        uses: actions/github-script@v8
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SUMMARY_JSON: ${{ env.REPO_ROOT }}/.notebook-ci/summary.json
+        with:
+          script: |
+            const fs = require("fs");
+            const summary = JSON.parse(fs.readFileSync(process.env.SUMMARY_JSON, "utf8"));
+            const title = "Weekly notebook CI failures";
+            const { owner, repo } = context.repo;
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100
+            });
+            const existing = openIssues.find((issue) => issue.title === title);
+            const failed = summary.results.filter((item) => item.status === "failed");
+            const skipped = summary.results.filter((item) => item.status === "skipped");
+            const body = [
+              "The scheduled notebook CI run failed.",
+              "",
+              `- Workflow run: ${process.env.RUN_URL}`,
+              `- Failed notebooks: ${failed.length}`,
+              `- Skipped notebooks: ${skipped.length}`,
+              "",
+              "## Failed notebooks",
+              "",
+              ...failed.map((item) => `- \`${item.path}\` — ${item.reason}`)
+            ].join("\n");
+            if (existing) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title,
+                body
+              });
+            }
+
+      - name: Close weekly failure issue after a clean run
+        if: github.event_name == 'schedule' && steps.execute.outputs.exit_code == '0'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = "Weekly notebook CI failures";
+            const { owner, repo } = context.repo;
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100
+            });
+            const existing = openIssues.find((issue) => issue.title === title);
+            if (existing) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                state: "closed"
+              });
+            }
+
+      - name: Fail when notebook execution fails
+        if: steps.execute.outputs.exit_code != '0'
+        run: exit 1
