@@ -40,9 +40,7 @@ jobs:
           r-reshape2 r-lubridate r-spdep r-gridextra
 
       - name: Install randomcoloR from CRAN
-        run: >
-          conda run -n notebook-ci Rscript -e
-          'install.packages("randomcoloR", repos = "https://cloud.r-project.org")'
+        run: conda run -n notebook-ci Rscript -e 'install.packages("randomcoloR", repos = "https://cloud.r-project.org")'
 
       - name: Register notebook kernels
         run: conda run -n notebook-ci Rscript -e 'IRkernel::installspec(name = "ir", displayname = "R", user = TRUE)'
