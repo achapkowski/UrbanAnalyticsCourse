@@ -37,7 +37,7 @@ jobs:
           python=3.11 nbclient nbformat jupyter
           r-openxlsx r-classint r-rcolorbrewer r-maptools r-doby
           r-leaflet r-sqldf r-rcurl r-rjsonio r-igraph
-          r-randomcolorr r-reshape2 r-lubridate r-spdep r-gridextra
+          r-randomcolor r-reshape2 r-lubridate r-spdep r-gridextra
 
       - name: Register notebook kernels
         run: conda run -n notebook-ci Rscript -e 'IRkernel::installspec(name = "ir", displayname = "R", user = TRUE)'
