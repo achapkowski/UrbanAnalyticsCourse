@@ -35,6 +35,10 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# Python cache files
+__pycache__/
+*.py[cod]
+
 # R Environment Variables
 .Renviron
 /ignore

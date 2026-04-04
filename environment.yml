@@ -6,8 +6,11 @@ dependencies:
   - r-base
   - r-essentials
   - r-tidyverse
+  - r-sf
+  - r-sp
+  - r-ggspatial
+  - r-osrm
+  - r-tidygeocoder
   - r-tmap
   - r-devtools
-  - r-rgeos
-  - r-rgdal
   - r-ggplot2
