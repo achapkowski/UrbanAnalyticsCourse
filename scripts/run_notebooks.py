@@ -79,7 +79,8 @@ def execute_notebook(repo_root: Path, notebook_path: Path, output_dir: Path, tim
         client.execute()
         return {"path": rel_path, "status": "passed"}
     except CellExecutionError as exc:
-        message = str(exc).strip().splitlines()[-1]
+        lines = str(exc).strip().splitlines()
+        message = lines[-1] if lines else "Notebook execution failed without an error message."
     except Exception as exc:  # pragma: no cover - defensive reporting
         message = f"{type(exc).__name__}: {exc}"
         traceback.print_exc()
