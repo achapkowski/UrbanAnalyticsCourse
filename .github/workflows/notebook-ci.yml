@@ -25,7 +25,7 @@ jobs:
         with:
           auto-activate-base: false
           miniforge-version: latest
-          channels: conda-forge,r,arcgis
+          channels: conda-forge,r
           channel-priority: flexible
 
       - name: Create notebook CI environment
