@@ -18,6 +18,7 @@ SKIPPED_NOTEBOOKS = {
     "notebooks/P9_Linking_R_to_the_Web.ipynb": "Requires live third-party APIs and Twitter credentials.",
     "notebooks/P14_ABM.ipynb": "Requires NetLogo and rJava tooling that is not available in CI.",
 }
+PYTHON_NOTEBOOK_SKIP_REASON = "Python-based notebooks are excluded from this CI workflow."
 
 SKIPPED_CELL_PATTERNS = [
     re.compile(r"install\.packages\(", re.IGNORECASE),
@@ -62,6 +63,9 @@ def execute_notebook(repo_root: Path, notebook_path: Path, output_dir: Path, tim
 
     with notebook_path.open(encoding="utf-8") as handle:
         notebook = nbformat.read(handle, as_version=4)
+
+    if kernel_name_for(notebook).startswith("python"):
+        return {"path": rel_path, "status": "skipped", "reason": PYTHON_NOTEBOOK_SKIP_REASON}
 
     sanitized = sanitize_notebook(notebook)
     client = NotebookClient(

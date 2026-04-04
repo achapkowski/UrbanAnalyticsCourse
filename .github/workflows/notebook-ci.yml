@@ -34,16 +34,13 @@ jobs:
       - name: Install notebook execution dependencies
         run: >
           conda install -n notebook-ci -y -c conda-forge
-          python=3.11 nbclient nbformat jupyter ipykernel
-          pandas numpy matplotlib geopandas shapely regex
+          python=3.11 nbclient nbformat jupyter
           r-openxlsx r-classint r-rcolorbrewer r-maptools r-doby
           r-leaflet r-sqldf r-rcurl r-rjsonio r-igraph
           r-randomcolorr r-reshape2 r-lubridate r-spdep r-gridextra
 
       - name: Register notebook kernels
-        run: |
-          conda run -n notebook-ci python -m ipykernel install --user --name python3 --display-name "Python 3"
-          conda run -n notebook-ci Rscript -e 'IRkernel::installspec(name = "ir", displayname = "R", user = TRUE)'
+        run: conda run -n notebook-ci Rscript -e 'IRkernel::installspec(name = "ir", displayname = "R", user = TRUE)'
 
       - name: Execute notebooks
         id: execute
