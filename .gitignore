@@ -43,3 +43,5 @@ __pycache__/
 .Renviron
 /ignore
 /notebooks/.ipynb_checkpoints
+/.notebook-ci/
+/.notebook-ci-pre/
