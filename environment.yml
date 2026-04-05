@@ -1,4 +1,4 @@
-channel:
+channels:
   - r
   - conda-forge
 dependencies:
