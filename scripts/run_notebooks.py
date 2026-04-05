@@ -14,7 +14,6 @@ from nbclient.exceptions import CellExecutionError
 
 
 SKIPPED_NOTEBOOKS = {
-    "notebooks/P1_Introduction_to_R.ipynb": "Contains a hard-coded local working directory that is not CI-safe.",
     "notebooks/P2_Data_Manipulation_in_R.ipynb": "Downloads external workbook data at runtime and is not CI-safe.",
     "notebooks/P3_Basic_SQL.ipynb": "Uses the external Carto SQL API and network access that are not CI-safe.",
     "notebooks/P4_Descriptive_Statistics.ipynb": "Requires geospatial system libraries that are not available in CI.",
