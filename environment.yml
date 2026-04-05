@@ -1,6 +1,5 @@
 channel:
   - r
-  - arcgis
   - conda-forge
 dependencies:
   - r-base
@@ -9,7 +8,7 @@ dependencies:
   - r-sf
   - r-sp
   - r-ggspatial
-  - r-osrm
+  - r-osm
   - r-tidygeocoder
   - r-tmap
   - r-devtools
