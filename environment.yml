@@ -1,4 +1,4 @@
-channel:
+channels:
   - r
   - conda-forge
 dependencies:
@@ -8,7 +8,7 @@ dependencies:
   - r-sf
   - r-sp
   - r-ggspatial
-  - r-osm
+  - r::r-osrm
   - r-tidygeocoder
   - r-tmap
   - r-devtools
